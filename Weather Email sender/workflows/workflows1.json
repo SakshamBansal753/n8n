@@ -1,0 +1,210 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ \"https://api.open-meteo.com/v1/forecast?latitude=26.2183&longitude=78.1828&current=temperature_2m,wind_speed_10m&temperature_unit=celsius\" }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        0,
+        -16
+      ],
+      "id": "c4057d70-511f-4bab-82a8-9af98ebe70e3",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "161f48e3-db0a-4bc6-8ae5-25863783a9a8",
+              "leftValue": "={{ $json.current.temperature_2m }}",
+              "rightValue": 25,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        -16
+      ],
+      "id": "b7c4362f-7dd8-4e1b-a1af-9e7ba3804914",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"highTemperature\": \"= \",\n  \"lowTemperature\": \"= \",\n  \"weathercode\": \"=\",\n  \"forecast\": \"=Today’s weather forecast: 🌤\\nTemperature: High   | Low  \\nAdvice: It’s warm and sunny — put on sunblock and bring your shades 😎.\"\n} ",
+        "includeOtherFields": "={{ false }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        80
+      ],
+      "id": "f34406a5-907b-410b-b4cf-f624a5814b51",
+      "name": "Cold"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"highTemperature\": \"={{ $json.daily.temperature_2m_max[0] }} {{ $json.daily_units.temperature_2m_max }}\",\n  \"lowTemperature\": \"={{ $json.daily.temperature_2m_min[0] }} {{ $json.daily_units.temperature_2m_min }}\",\n  \"weathercode\": \"={{ $json.daily.weathercode[0] }}\",\n  \"forecast\": \"=Today’s weather forecast: 🌤\\nTemperature: High {{ $json.daily.temperature_2m_max[0] }} {{ $json.daily_units.temperature_2m_max }} | Low {{ $json.daily.temperature_2m_min[0] }} {{ $json.daily_units.temperature_2m_min }}\\nAdvice: It’s warm and sunny — put on sunblock and bring your shades 😎.\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        -112
+      ],
+      "id": "f1ed5b5e-e045-4c15-954a-aaf84a4109ad",
+      "name": "Hot"
+    },
+    {
+      "parameters": {
+        "sendTo": "",
+        "subject": "Today weather foercat",
+        "emailType": "text",
+        "message": "={{ $json.forecast }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        -32
+      ],
+      "id": "823add19-bfb2-4c1b-a441-0bc9a6307054",
+      "name": "Send a message",
+      "webhookId": "06187b68-53cc-45f7-86e7-1c1894d17436",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UbjZeTEKHTDQKi29",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {},
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -192,
+        -16
+      ],
+      "id": "eab1838d-9df8-493b-9ead-a3b9b82d2288",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Hot",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cold",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "Hot": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cold": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2c44d8fa-e27f-405a-a52b-e1e4c4e65eca",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f05b4d37b4833e8800cf615c4b4e3859a06c5f9758ad2b6e90ef9d744c285a41"
+  },
+  "nodeGroups": [],
+  "id": "5CTBeMmEmjfVTERI",
+  "tags": []
+}
