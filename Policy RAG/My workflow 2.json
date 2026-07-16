@@ -1,0 +1,426 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1XB6H4JHbCKfTDFIfCuYHTpr16dc5xiVV",
+          "mode": "list",
+          "cachedResultName": "FAQ",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1XB6H4JHbCKfTDFIfCuYHTpr16dc5xiVV"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "76ca0319-9abe-4d0d-a686-45dea6468429",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "tANR6jn8dTNE3U6K",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        288,
+        0
+      ],
+      "id": "b738889a-37ee-4d63-8126-fafb75138de2",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "tANR6jn8dTNE3U6K",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "chromaCollection": {
+          "__rl": true,
+          "value": "checkn8n",
+          "mode": "list",
+          "cachedResultName": "checkn8n"
+        },
+        "options": {
+          "clearCollection": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreChromaDB",
+      "typeVersion": 1.3,
+      "position": [
+        640,
+        0
+      ],
+      "id": "37a33b3b-fdcb-4dbb-b301-b4b2e879d197",
+      "name": "Chroma Vector Store",
+      "credentials": {
+        "chromaSelfHostedApi": {
+          "id": "LiZP4ScqiDGcdFvt",
+          "name": "ChromaDB Self-Hosted account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsHuggingFaceInference",
+      "typeVersion": 1,
+      "position": [
+        640,
+        208
+      ],
+      "id": "c34db4c9-4bd6-4fba-8b49-aadd548192d8",
+      "name": "Embeddings HuggingFace Inference",
+      "credentials": {
+        "huggingFaceApi": {
+          "id": "H1g2jkrhp2XP0YdA",
+          "name": "Hugging Face account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        208
+      ],
+      "id": "9fc4fa73-2d4d-40e5-8041-e6d2476e13f8",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        880,
+        416
+      ],
+      "id": "93b2f60c-5bbb-47f1-b6ed-e84129374169",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1584,
+        240
+      ],
+      "id": "cb29c358-b95a-4376-994a-7ba57795cb8c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        1248,
+        240
+      ],
+      "id": "fbdfe5c6-be07-4c52-a344-dbcc4e782b8e",
+      "name": "When chat message received",
+      "webhookId": "18577063-3c42-492b-a928-0facbdbf5d7f"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1584,
+        528
+      ],
+      "id": "d5638876-9392-4652-9633-8f3292ac1834",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "PM7sFbBEyM2gSK4Z",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Call this tool to access the policy and FAQ database",
+        "chromaCollection": {
+          "__rl": true,
+          "value": "checkn8n",
+          "mode": "list",
+          "cachedResultName": "checkn8n"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreChromaDB",
+      "typeVersion": 1.3,
+      "position": [
+        1616,
+        -80
+      ],
+      "id": "8d570d00-c695-4fea-84f4-2a190c2dfe92",
+      "name": "Chroma Vector Store1",
+      "credentials": {
+        "chromaSelfHostedApi": {
+          "id": "LiZP4ScqiDGcdFvt",
+          "name": "ChromaDB Self-Hosted account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsHuggingFaceInference",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        96
+      ],
+      "id": "a8f0ddeb-d545-4e93-b16a-97c5248c03e2",
+      "name": "Embeddings HuggingFace Inference1",
+      "credentials": {
+        "huggingFaceApi": {
+          "id": "H1g2jkrhp2XP0YdA",
+          "name": "Hugging Face account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        1696,
+        480
+      ],
+      "id": "fd1dda97-546d-4337-a7a4-95d75354f1a4",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "content": "## Data Store\nUse to Store data from drive file",
+        "height": 832,
+        "width": 1296,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -128,
+        -112
+      ],
+      "typeVersion": 1,
+      "id": "1adaa421-b576-4359-aa6f-abff6b0df28e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Generator\n",
+        "height": 832,
+        "width": 896,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1184,
+        -112
+      ],
+      "typeVersion": 1,
+      "id": "cd421bb3-8bb4-442b-b79e-6d37ba750de6",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "##                 RAG"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        912,
+        -400
+      ],
+      "typeVersion": 1,
+      "id": "127fe5a1-2051-4b8d-9755-1728cd3111a3",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Chroma Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings HuggingFace Inference": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Chroma Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Chroma Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chroma Vector Store": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chroma Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings HuggingFace Inference1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Chroma Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "abb866e9-2685-45a9-ab54-2a44b972cbe7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f05b4d37b4833e8800cf615c4b4e3859a06c5f9758ad2b6e90ef9d744c285a41"
+  },
+  "nodeGroups": [],
+  "id": "avPVeP1A0409uWfY",
+  "tags": []
+}
